@@ -1,0 +1,73 @@
+services:
+  wapoint-postgres:
+    image: postgres:16-alpine
+    container_name: wapoint-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: wapoint
+      POSTGRES_USER: wapoint
+      POSTGRES_PASSWORD: wapoint_secret
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wapoint"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  wapoint-redis:
+    image: redis:7-alpine
+    container_name: wapoint-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  evolution-api:
+    image: atendai/evolution-api:v2.2.1
+    container_name: evolution-api
+    restart: unless-stopped
+    depends_on:
+      wapoint-postgres:
+        condition: service_healthy
+      wapoint-redis:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      AUTHENTICATION_API_KEY: wapoint_master_key
+      AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "true"
+
+      CACHE_REDIS_ENABLED: "true"
+      CACHE_REDIS_URI: redis://wapoint-redis:6379
+      CACHE_REDIS_PREFIX_KEY: evolution
+
+      DATABASE_PROVIDER: postgresql
+      DATABASE_CONNECTION_URI: postgresql://wapoint:wapoint_secret@wapoint-postgres:5432/wapoint
+      DATABASE_SAVE_DATA_INSTANCE: "true"
+      DATABASE_SAVE_DATA_NEW_MESSAGE: "true"
+      DATABASE_SAVE_MESSAGE_UPDATE: "true"
+      DATABASE_SAVE_DATA_CONTACTS: "true"
+      DATABASE_SAVE_DATA_CHATS: "true"
+
+      CONFIG_SESSION_PHONE_CLIENT: wapoint
+      CONFIG_SESSION_PHONE_NAME: Chrome
+
+      QRCODE_LIMIT: 30
+
+      LOG_LEVEL: info
+      LOG_BAILEYS: error
+
+      DEL_INSTANCE: "false"
+
+volumes:
+  pgdata:
+  redisdata:
