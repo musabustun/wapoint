@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -154,14 +155,12 @@ export default async function EditBarberPage({
               >
                 Save Changes
               </Button>
-              <Button
-                variant="outline"
-                className="border-zinc-700 text-zinc-400"
-                onClick={() => redirect("/super-admin")}
-                type="button"
+              <Link
+                href="/super-admin"
+                className="inline-flex shrink-0 items-center justify-center rounded-lg border border-zinc-700 bg-clip-padding px-4 py-2 text-sm font-medium text-zinc-400 transition-all outline-none select-none hover:text-white"
               >
                 Cancel
-              </Button>
+              </Link>
             </div>
           </form>
         </CardContent>
