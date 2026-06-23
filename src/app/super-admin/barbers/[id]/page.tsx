@@ -20,12 +20,14 @@ async function updateBarber(formData: FormData) {
   const name = formData.get("name") as string;
   const email = formData.get("email") as string;
   const slug = formData.get("slug") as string;
+  const phone = formData.get("phone") as string;
+  const address = formData.get("address") as string;
   const requireOtp = formData.get("requireOtp") === "on";
   const isActive = formData.get("isActive") === "on";
 
   await prisma.barber.update({
     where: { id },
-    data: { name, email, slug, requireOtp, isActive },
+    data: { name, email, slug, phone: phone || null, address: address || null, requireOtp, isActive },
   });
 
   revalidatePath("/super-admin");
@@ -82,6 +84,28 @@ export default async function EditBarberPage({
                 defaultValue={barber.email}
                 className="border-zinc-700 bg-zinc-800 text-white"
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-zinc-300">
+                Phone
+              </Label>
+              <Input
+                id="phone"
+                name="phone"
+                defaultValue={barber.phone ?? ""}
+                className="border-zinc-700 bg-zinc-800 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="address" className="text-zinc-300">
+                Address
+              </Label>
+              <Input
+                id="address"
+                name="address"
+                defaultValue={barber.address ?? ""}
+                className="border-zinc-700 bg-zinc-800 text-white"
               />
             </div>
             <div className="space-y-2">

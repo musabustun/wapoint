@@ -24,9 +24,11 @@ model Barber {
   email             String   @unique
   passwordHash      String
   slug              String   @unique
+  phone             String?
+  address           String?
   evolutionApiUrl   String?
   evolutionApiKey   String?
-  evolutionInstance String?
+  evolutionInstance String?  @unique
   whatsappConnected Boolean  @default(false)
   requireOtp        Boolean  @default(true)
   isActive          Boolean  @default(true)

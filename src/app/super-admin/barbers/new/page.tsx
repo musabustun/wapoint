@@ -28,6 +28,8 @@ async function createBarber(formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
   const slug = formData.get("slug") as string || generateSlug(name);
+  const phone = formData.get("phone") as string;
+  const address = formData.get("address") as string;
   const requireOtp = formData.get("requireOtp") === "on";
 
   const passwordHash = await hash(password, 12);
@@ -38,6 +40,8 @@ async function createBarber(formData: FormData) {
       email,
       passwordHash,
       slug,
+      phone: phone || null,
+      address: address || null,
       requireOtp,
     },
   });
@@ -100,6 +104,28 @@ export default function NewBarberPage() {
                 className="border-zinc-700 bg-zinc-800 text-white"
                 minLength={6}
                 required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phone" className="text-zinc-300">
+                Phone
+              </Label>
+              <Input
+                id="phone"
+                name="phone"
+                placeholder="05XX XXX XX XX"
+                className="border-zinc-700 bg-zinc-800 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="address" className="text-zinc-300">
+                Address
+              </Label>
+              <Input
+                id="address"
+                name="address"
+                placeholder="Shop address"
+                className="border-zinc-700 bg-zinc-800 text-white"
               />
             </div>
             <div className="space-y-2">
