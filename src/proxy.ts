@@ -1,17 +1,22 @@
+import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { NextResponse } from "next/server";
 
-export default auth((req) => {
+export default async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
-  const session = req.auth;
 
   const isSuperAdmin = pathname.startsWith("/super-admin");
   const isSuperAdminLogin = pathname === "/super-admin/login";
   const isBarber = pathname.startsWith("/barber");
   const isBarberLogin = pathname === "/barber/login";
-  const isApiAuth = pathname.startsWith("/api/auth");
 
-  if (isApiAuth) return NextResponse.next();
+  if (!isSuperAdmin && !isBarber) return NextResponse.next();
+
+  let session = null;
+  try {
+    session = await auth();
+  } catch {
+    // auth() threw — treat as unauthenticated
+  }
 
   if (isSuperAdmin && !isSuperAdminLogin && !session) {
     const loginUrl = new URL("/super-admin/login", req.url);
@@ -32,7 +37,7 @@ export default auth((req) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/super-admin/:path*", "/barber/:path*"],
